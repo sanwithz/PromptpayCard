@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Line Official</title>
+  <!-- jquery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <!-- Tailwind css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <!-- Loading Overlay -->
+  <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+  <!-- Sweet Alert -->
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  
+  <!-- Google Font -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+
+    * {
+      font-family: 'Sarabun', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(0deg, rgba(252, 233, 233, 1) 0%, rgba(224, 244, 241, 1) 26%, rgba(255, 255, 255, 1) 71%);
+    }
+  </style>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body class="bg-white font-sans">
+
+  <!-- Header -->
+  <header class="bg-blue-700 text-white text-center py-3">
+    <h1 class="text-lg font-bold">ระบบจัดการค่าเรียนพิเศษ | Alpha Academy</h1>
+    <p class="text-xs">Sittichart | Line Official</p>
+  </header>
+
+  <!-- Banner -->
+  <div class="bg-blue-100 p-2 text-center text-sm text-blue-800 font-medium">
+    <span id="userName">ชื่อผู้ใช้ : </span>
+  </div>
+
+  <!-- Card 1 -->
+  <div class="m-4 border-2 bg-white border-blue-300 rounded-md shadow">
+    <div class="flex justify-between items-center px-4 py-2 bg-blue-100">
+      <span class="text-sm font-medium">ID-10830111457</span>
+      <span class="text-xs text-white bg-red-600 px-2 py-0.5 rounded-full">เกินกำหนด</span>
+    </div>
+    <div class="px-4 py-2 space-y-1 text-sm">
+      <p class="font-medium text-gray-700">นายทดลอง ใจดี</p>
+      <p><span class="font-semibold">สถานะ: </span>ปกติ</p>
+      <p><span class="font-semibold">ประเภท: </span>รายเดือน</p>
+      <p><span class="font-semibold">เบอร์โทรติดต่อ: </span>0987654321</p>
+      <p class="font-semibold text-blue-700">ค่าเรียน 1,200 บาท</p>
+
+      <div class="flex gap-2 pt-2">
+        <button class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">ชำระเงิน/ขอ QR Code</button>
+        <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">ดูประวัติ</button>
+      </div>
+      <!-- QR Code Image -->
+<div class="qr-section hidden mt-4 text-center">
+  <img class="mx-auto w-40 h-40 mt-4 border border-gray-300 rounded shadow" src="" alt="QR Code">
+  <p class="text-xs text-gray-600 mt-2">สแกนเพื่อชำระเงินผ่าน PromptPay</p>
+</div>
+
+
+<!-- History Table -->
+<div class="history-table hidden mt-4 overflow-x-auto">
+  <table class="w-full table-auto border text-sm">
+    <thead class="bg-blue-200 text-blue-800 font-bold">
+      <tr>
+        <th class="border px-2 py-1">วันที่เรียน</th>
+        <th class="border px-2 py-1">จำนวนชั่วโมง</th>
+        <th class="border px-2 py-1">ค่าเรียน</th>
+        <th class="border px-2 py-1">ครูผู้สอน</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+
+
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="m-4 border-2 bg-white border-blue-300 rounded-md shadow">
+    <div class="flex justify-between items-center px-4 py-2 bg-blue-100">
+      <span class="text-sm font-medium">ID-10830188983</span>
+      <span class="text-xs text-white bg-green-600 px-2 py-0.5 rounded-full">ชำระแล้ว</span>
+    </div>
+    <div class="px-4 py-2 space-y-1 text-sm">
+      <p class="font-medium text-gray-700">นายทดสอบ ใจร้าย</p>
+      <p><span class="font-semibold">สถานะ:</span> ปกติ</p>
+      <p><span class="font-semibold">ประเภท:</span> รายเดือน</p>
+      <p><span class="font-semibold">เบอร์โทรติดต่อ: </span>0987654321</p>
+      <p class="font-semibold text-blue-700">ค่าเรียน 1,200 บาท</p>
+
+      <div class="flex gap-2 pt-2">
+        <button class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">ชำระเงิน/ขอ QR Code</button>
+        <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">ดูประวัติ</button>
+      </div>
+      <!-- QR Code Image -->
+<div class="qr-section hidden mt-4 text-center">
+  <img class="mx-auto w-40 h-40 border border-gray-300 mt-4 rounded shadow" src="" alt="QR Code">
+  <p class="text-xs text-gray-600 mt-2">สแกนเพื่อชำระเงินผ่าน PromptPay</p>
+</div>
+
+      <!-- History Table -->
+<div class="history-table hidden mt-4 overflow-x-auto">
+  <table class="w-full table-auto border text-sm">
+    <thead class="bg-blue-200 text-blue-800 font-bold">
+      <tr>
+        <th class="border px-2 py-1">วันที่เรียน</th>
+        <th class="border px-2 py-1">จำนวนชั่วโมง</th>
+        <th class="border px-2 py-1">ค่าเรียน</th>
+        <th class="border px-2 py-1">ครูผู้สอน</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+      
+    </div>
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      await liff.init({ liffId: "2007125937-WmXypZ3M" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        const profile = await liff.getProfile();
+        console.log("✅ LIFF Login Success");
+        console.log("👤 User Name:", profile.displayName);
+        document.getElementById("userName").innerText = "ชื่อผู้ใช้  : " + profile.displayName;
+      }
+    } catch (error) {
+      console.error("❌ LIFF init failed", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับ LINE");
+    }
+  });
+
+  $(document).ready(function () {
+    
+    // Mock data per card ID
+const mockData = {
+  "ID-10830111457": [
+    { date: "8 ก.ค. 68", hours: 2, price: 600, teacher: "ครูเจมส์" },
+    { date: "8 มิ.ย. 68", hours: 2, price: 600, teacher: "ครูแมน" },
+    { date: "7 พ.ค. 68", hours: 2, price: 600, teacher: "ครูแบงค์" }
+  ],
+  "ID-10830188983": [
+    { date: "9 ก.ค. 68", hours: 2, price: 900, teacher: "ครูพีช" },
+    { date: "9 มิ.ย. 68", hours: 2, price: 900, teacher: "ครูน้ำ" },
+    { date: "8 พ.ค. 68", hours: 2, price: 900, teacher: "ครูแทน" },
+    { date: "8 เม.ย. 68", hours: 2, price: 900, teacher: "ครูเบลล์" }
+  ]
+};
+
+    
+    // Update ค่าเรียน dynamically on page load
+$(".border-2").each(function () {
+  const $card = $(this);
+  const cardId = $card.find("span.text-sm").text().trim();
+  const rows = mockData[cardId] || [];
+
+  const total = rows.reduce((sum, r) => sum + r.price, 0);
+  $card.find("p:contains('ค่าเรียน')").text(`ค่าเรียน ${total.toLocaleString()} บาท`);
+});
+ 
+    
+// Inject table dynamically
+function populateHistoryTable(cardId, $tableBody) {
+  $tableBody.empty(); // Clear current content
+  const rows = mockData[cardId] || [];
+
+  rows.forEach((row, i) => {
+    const bg = i % 2 === 1 ? 'bg-gray-50' : '';
+    const tr = `
+      <tr class="text-center ${bg}">
+        <td class="border px-2 py-1">${row.date}</td>
+        <td class="border px-2 py-1">${row.hours}</td>
+        <td class="border px-2 py-1">${row.price.toLocaleString()}</td>
+        <td class="border px-2 py-1">${row.teacher}</td>
+      </tr>
+    `;
+    $tableBody.append(tr);
+  });
+}
+
+    
+$("button:contains('ดูประวัติ')").on("click", function () {
+  const $card = $(this).closest(".space-y-1");
+  const $historyTable = $card.find(".history-table");
+  const $qrSection = $card.find(".qr-section");
+
+  // Close QR section
+  $qrSection.slideUp();
+
+  // Get Card ID
+  const cardId = $card.closest(".border-2").find("span.text-sm").text().trim();
+
+  // Populate data
+  const $tbody = $historyTable.find("tbody");
+  populateHistoryTable(cardId, $tbody);
+
+  // Toggle logic
+  $(".history-table").not($historyTable).slideUp();
+  $historyTable.slideToggle();
+});
+
+
+// Handle 'ขอ QR Code'
+$("button:contains('QR Code')").on("click", function () {
+  const $card = $(this).closest(".space-y-1");
+  const $qrSection = $card.find(".qr-section");
+  const $historyTable = $card.find(".history-table");
+
+  // Close history table if open
+  $historyTable.slideUp();
+
+  // Get Card ID
+  const cardId = $card.closest(".border-2").find("span.text-sm").text().trim();
+
+  // ✅ Calculate amount from mockData
+  const rows = mockData[cardId] || [];
+  const totalAmount = rows.reduce((sum, row) => sum + row.price, 0);
+
+  // Generate QR URL with calculated amount
+  const qrUrl = `https://promptpay.io/0836712486/${totalAmount}.png`;
+  $qrSection.find("img").attr("src", qrUrl);
+  $(".qr-section").not($qrSection).slideUp();
+  $qrSection.slideToggle();
+});
+
+  });
+</script>
+
+
+  
+  <div class="w-full mt-4">
+<!-- Footer -->
+<footer class="bg-white border-t border-gray-200 py-4">
+<div class="container mx-auto px-4 text-center text-sm">
+<p>© <script>document.write(new Date().getFullYear());</script> Copyright | พัฒนาโดยครูสิทธิชาติ สิทธิ
+<a href="https://www.facebook.com/SanwithzWebapp" target="_blank"><i class="fa-brands fa-facebook  text-blue-500 hover:text-blue-700"></i></a>
+<a href="https://www.youtube.com/@Sanwithz" target="_blank"><i class="fa-brands fa-youtube text-red-500 hover:text-red-700"></i></a></p>
+</div>
+</footer>
+</div>
+</body>
+</html>

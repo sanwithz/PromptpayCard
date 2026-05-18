@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptPay QR Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for JSON output */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; 
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col text-gray-900">
+
+    <div class="flex-1 min-h-0">
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">PromptPay QR Generator</h1>
+                        <p class="mt-1 text-sm text-gray-500">Generate PromptPay QR codes for receiving payments (EMVCo standard)</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex gap-2">
+                            <button id="btn-copy-header" disabled class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-gray-300 bg-white hover:bg-gray-100 h-10 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg id="icon-copy-header" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                                <span id="text-copy-header">Copy Link</span>
+                            </button>
+                            <button id="btn-dl-header" disabled class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors text-white h-10 px-4 py-2 bg-[#1A4F9C] hover:bg-[#153d7a] disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div class="space-y-6">
+                    <!-- Account Type Selection -->
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900">Account Type</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid gap-3 space-y-0">
+                                
+                                <label id="label-phone" class="flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all border-[#1A4F9C] bg-blue-50">
+                                    <input type="radio" name="accountType" value="phone" checked class="hidden" />
+                                    <div id="indicator-phone" class="aspect-square h-4 w-4 rounded-full border flex items-center justify-center border-[#1A4F9C]">
+                                        <div class="h-2 w-2 rounded-full bg-[#1A4F9C]"></div>
+                                    </div>
+                                    <svg id="icon-phone" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-[#1A4F9C]"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium block">Phone Number</span>
+                                        <p class="text-xs text-gray-500">10-digit mobile number</p>
+                                    </div>
+                                </label>
+
+                                <label id="label-national_id" class="flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all border-gray-200 hover:border-gray-300">
+                                    <input type="radio" name="accountType" value="national_id" class="hidden" />
+                                    <div id="indicator-national_id" class="aspect-square h-4 w-4 rounded-full border flex items-center justify-center border-gray-300"></div>
+                                    <svg id="icon-national_id" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-400"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium block">National ID / Tax ID</span>
+                                        <p class="text-xs text-gray-500">13-digit number</p>
+                                    </div>
+                                </label>
+
+                                <label id="label-ewallet" class="flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all border-gray-200 hover:border-gray-300">
+                                    <input type="radio" name="accountType" value="ewallet" class="hidden" />
+                                    <div id="indicator-ewallet" class="aspect-square h-4 w-4 rounded-full border flex items-center justify-center border-gray-300"></div>
+                                    <svg id="icon-ewallet" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-400"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium block">E-Wallet ID</span>
+                                        <p class="text-xs text-gray-500">15-digit E-Wallet number</p>
+                                    </div>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Details -->
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900">Account Details</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label id="label-account-id" class="block text-sm font-medium text-gray-700">Phone Number<span class="text-red-500 ml-1">*</span></label>
+                                    <input type="text" id="input-account-id" class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A4F9C] focus:border-transparent md:text-sm text-lg font-mono tracking-wider" placeholder="0812345678" maxlength="10">
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Account Name (Optional)</label>
+                                    <input type="text" id="input-account-name" class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A4F9C] focus:border-transparent md:text-sm" placeholder="e.g. Example Co., Ltd." maxlength="100">
+                                    <p class="text-xs text-gray-500">Displayed on Flex Message when shared via LINE</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Amount (Optional)</label>
+                                    <div class="relative">
+                                        <input type="number" id="input-amount" class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A4F9C] focus:border-transparent md:text-sm text-lg pr-12" placeholder="0.00" min="0" step="0.01">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">฿</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Enter amount for fixed payment QR</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Tabs -->
+                    <div class="inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500 w-full">
+                        <button id="tab-qr" class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 bg-white text-gray-900 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                            QR Code
+                        </button>
+                        <button id="tab-flex" class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 hover:bg-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            Flex Message
+                        </button>
+                    </div>
+
+                    <!-- QR Content -->
+                    <div id="content-qr" class="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 overflow-hidden animate-in fade-in duration-300">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-medium text-gray-900">QR Code Preview</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-center p-6 bg-gray-50 border border-dashed border-gray-300 rounded-lg min-h-[400px]">
+                                
+                                <!-- Empty State -->
+                                <div id="qr-empty" class="text-center self-center flex flex-col items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-24 w-24 text-gray-300 mx-auto mb-4"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                                    <p class="text-gray-500 text-sm">Enter a valid ID or Phone Number to generate QR</p>
+                                </div>
+
+                                <!-- Active State -->
+                                <div id="qr-active" class="hidden w-full max-w-[320px]">
+                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                                        <div class="flex items-center justify-between px-4 py-3 bg-[#1A4F9C]">
+                                            <span class="text-white font-bold text-lg leading-none">PromptPay</span>
+                                            <span class="text-white/90 text-xs">พร้อมเพย์</span>
+                                        </div>
+                                        <div class="bg-white p-4">
+                                            <img id="qr-img" src="" alt="PromptPay QR Code" class="w-full aspect-square object-contain" />
+                                        </div>
+                                        <div class="px-4 pb-3 space-y-3">
+                                            <div class="flex items-baseline justify-between gap-3">
+                                                <span id="qr-display-label" class="text-sm text-gray-600 shrink-0">Phone Number</span>
+                                                <span id="qr-display-id" class="text-sm font-bold text-gray-900 font-mono text-right truncate">-</span>
+                                            </div>
+                                            
+                                            <div id="qr-amount-container" class="hidden">
+                                                <div class="border-t border-gray-200 my-3"></div>
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <span class="text-sm text-gray-600 shrink-0">Amount</span>
+                                                    <span id="qr-display-amount" class="text-xl font-bold text-[#1A4F9C]">฿0.00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 px-4 py-2.5 border-t border-gray-100">
+                                            <p class="text-[10px] text-gray-400 text-center">Scan to pay • Works with all Thai banking apps</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-3 mt-4">
+                                        <button id="btn-dl-card" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors text-white h-10 px-4 py-2 flex-1 bg-[#1A4F9C] hover:bg-[#153d7a]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                                            Download PNG
+                                        </button>
+                                        <button id="btn-copy-card" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-gray-300 bg-white hover:bg-gray-100 h-10 px-4 py-2 flex-1">
+                                            <svg id="icon-copy-card" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                                            <span id="text-copy-card">Copy Link</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flex Content -->
+                    <div id="content-flex" class="hidden space-y-4 mt-4 animate-in fade-in duration-300">
+                        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-lg font-medium text-gray-900">LINE Flex Message Preview</h2>
+                            </div>
+                            <div class="p-0">
+                                <div class="bg-[#7494C0] p-8 flex justify-center items-center min-h-[400px]">
+                                    
+                                    <!-- Empty State -->
+                                    <div id="flex-empty" class="text-center text-white bg-black/20 p-6 rounded-lg backdrop-blur-sm">
+                                        <p>Enter data to preview Flex Message</p>
+                                    </div>
+
+                                    <!-- Active State -->
+                                    <div id="flex-active" class="hidden w-full max-w-[300px] rounded-[1.25rem] shadow-lg overflow-hidden flex flex-col font-sans bg-[#7494C0]">
+                                        <!-- Flex Bubble Wrapper -->
+                                        <div class="flex flex-col bg-white overflow-hidden rounded-[1.25rem]">
+                                            
+                                            <!-- t1Header -->
+                                            <div class="flex items-center px-4 py-3 bg-[#1A4F9C]">
+                                                <div class="flex-1 text-white font-bold text-lg leading-none">
+                                                    PromptPay
+                                                </div>
+                                                <div class="text-white/90 text-xs text-right">
+                                                    พร้อมเพย์
+                                                </div>
+                                            </div>
+
+                                            <!-- t1Hero -->
+                                            <div class="relative w-full aspect-square">
+                                                <div class="absolute inset-0">
+                                                    <img id="flex-qr-img" src="" alt="QR Code" class="w-full h-full object-contain" />
+                                                </div>
+                                                <!-- Optional centered logo overlay if desired, removed to perfectly match HTML snippet provided, but can be added back if needed -->
+                                            </div>
+
+                                            <!-- t1Body -->
+                                            <div class="flex flex-col space-y-3 bg-white p-3">
+                                                
+                                                <div id="flex-name-container" class="hidden w-full text-center mb-1">
+                                                    <h3 id="flex-name" class="text-gray-800 font-bold text-[17px] leading-tight break-words"></h3>
+                                                </div>
+
+                                                <div class="flex justify-between items-start gap-2">
+                                                    <div class="text-sm text-[#666666] shrink-0">
+                                                        <span id="flex-type-label">เบอร์โทร</span>
+                                                    </div>
+                                                    <div class="text-sm text-[#111827] font-bold text-right break-all">
+                                                        <span id="flex-display-id">083-671-2486</span>
+                                                    </div>
+                                                </div>
+
+                                                <div id="flex-amount-container" class="hidden flex-col space-y-3">
+                                                    <div class="w-full h-[1px] bg-gray-200"></div>
+                                                    <div class="flex justify-between items-center gap-2">
+                                                        <div class="text-sm text-[#666666] shrink-0">
+                                                            จำนวนเงิน
+                                                        </div>
+                                                        <div class="text-xl text-[#1A4F9C] font-bold text-right break-all">
+                                                            <span id="flex-amount">฿450.00</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-[10px] text-[#9CA3AF] text-center pt-2">
+                                                    <span id="flex-ref">Ref 2026-05-18 03:08</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- t1Footer -->
+                                            <div class="flex flex-col bg-[#F9FAFB] p-3">
+                                                <div class="text-[10px] text-[#9CA3AF] text-center leading-relaxed w-full">สแกนเพื่อชำระเงิน • ใช้ได้กับแอปธนาคารทุกธนาคาร</div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- JSON Output -->
+                        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                                <h2 class="text-lg font-medium text-gray-900">Flex JSON (For Developers)</h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="bg-gray-900 rounded-lg p-4 relative max-h-[400px] overflow-y-auto">
+                                    <button id="btn-copy-json" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors hover:bg-gray-800 h-9 rounded-md px-3 absolute top-2 right-2 text-gray-400 hover:text-white z-10" title="Copy JSON">
+                                        <svg id="icon-copy-json" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                                    </button>
+                                    <pre id="json-output" class="text-green-400 text-xs font-mono whitespace-pre-wrap pr-8">{}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            accountType: 'phone', // 'phone', 'national_id', 'ewallet'
+            accountId: '',
+            accountName: '',
+            amount: '',
+            activeTab: 'qr' // 'qr', 'flex'
+        };
+
+        // --- SVG Icons Data ---
+        const iconCopy = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>';
+        const iconCheck = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        const iconCopyJson = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>';
+        const iconCheckJson = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+        // --- DOM Elements ---
+        const els = {
+            // Inputs
+            radios: document.querySelectorAll('input[name="accountType"]'),
+            inputId: document.getElementById('input-account-id'),
+            inputName: document.getElementById('input-account-name'),
+            inputAmount: document.getElementById('input-amount'),
+            
+            // Labels & Indicators (for styling)
+            labelId: document.getElementById('label-account-id'),
+            labels: {
+                phone: document.getElementById('label-phone'),
+                national_id: document.getElementById('label-national_id'),
+                ewallet: document.getElementById('label-ewallet')
+            },
+            indicators: {
+                phone: document.getElementById('indicator-phone'),
+                national_id: document.getElementById('indicator-national_id'),
+                ewallet: document.getElementById('indicator-ewallet')
+            },
+            icons: {
+                phone: document.getElementById('icon-phone'),
+                national_id: document.getElementById('icon-national_id'),
+                ewallet: document.getElementById('icon-ewallet')
+            },
+
+            // Tabs
+            tabQr: document.getElementById('tab-qr'),
+            tabFlex: document.getElementById('tab-flex'),
+            contentQr: document.getElementById('content-qr'),
+            contentFlex: document.getElementById('content-flex'),
+
+            // Buttons
+            btnCopyHeader: document.getElementById('btn-copy-header'),
+            btnDlHeader: document.getElementById('btn-dl-header'),
+            btnCopyCard: document.getElementById('btn-copy-card'),
+            btnDlCard: document.getElementById('btn-dl-card'),
+            btnCopyJson: document.getElementById('btn-copy-json'),
+            textCopyHeader: document.getElementById('text-copy-header'),
+            iconCopyHeader: document.getElementById('icon-copy-header'),
+            textCopyCard: document.getElementById('text-copy-card'),
+            iconCopyCard: document.getElementById('icon-copy-card'),
+            iconCopyJson: document.getElementById('icon-copy-json'),
+
+            // Previews
+            qrEmpty: document.getElementById('qr-empty'),
+            qrActive: document.getElementById('qr-active'),
+            qrImg: document.getElementById('qr-img'),
+            qrDisplayLabel: document.getElementById('qr-display-label'),
+            qrDisplayId: document.getElementById('qr-display-id'),
+            qrAmountContainer: document.getElementById('qr-amount-container'),
+            qrDisplayAmount: document.getElementById('qr-display-amount'),
+
+            // Flex Previews
+            flexEmpty: document.getElementById('flex-empty'),
+            flexActive: document.getElementById('flex-active'),
+            flexQrImg: document.getElementById('flex-qr-img'),
+            flexNameContainer: document.getElementById('flex-name-container'),
+            flexName: document.getElementById('flex-name'),
+            flexTypeLabel: document.getElementById('flex-type-label'),
+            flexDisplayId: document.getElementById('flex-display-id'),
+            flexAmountContainer: document.getElementById('flex-amount-container'),
+            flexAmount: document.getElementById('flex-amount'),
+            flexRef: document.getElementById('flex-ref'),
+            jsonOutput: document.getElementById('json-output')
+        };
+
+        // --- Formatters & Helpers ---
+        const getQrUrl = () => {
+            const cleanId = state.accountId.replace(/\D/g, '');
+            if (!cleanId || cleanId.length < 10) return null;
+            let url = `https://promptpay.io/${cleanId}`;
+            if (state.amount && parseFloat(state.amount) > 0) {
+                url += `/${parseFloat(state.amount).toFixed(2)}`;
+            }
+            return `${url}.png`;
+        };
+
+        const formatDisplayId = (id, type) => {
+            if (!id) return '';
+            const cleanId = id.replace(/\D/g, '');
+            if (type === 'phone' && cleanId.length === 10) {
+                return cleanId.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            }
+            if (type === 'national_id' && cleanId.length === 13) {
+                return cleanId.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
+            }
+            return id;
+        };
+
+        const generateFlexJson = (qrUrl) => {
+            if (!qrUrl) return "{}";
+            const typeLabel = state.accountType === 'phone' ? 'เบอร์โทร' : state.accountType === 'national_id' ? 'รหัสบัตรประชาชน' : 'E-Wallet';
+            const formattedId = formatDisplayId(state.accountId, state.accountType);
+            const displayAmount = state.amount && parseFloat(state.amount) > 0 ? `฿${parseFloat(state.amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : null;
+
+            const d = new Date();
+            const dateString = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+            const json = {
+                "type": "bubble",
+                "size": "mega",
+                "header": {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "backgroundColor": "#1A4F9C",
+                    "paddingAll": "16px",
+                    "alignItems": "center",
+                    "contents": [
+                        { "type": "text", "text": "PromptPay", "color": "#FFFFFF", "weight": "bold", "size": "lg", "flex": 1 },
+                        { "type": "text", "text": "พร้อมเพย์", "color": "#FFFFFF", "size": "xs", "align": "end" }
+                    ]
+                },
+                "hero": { "type": "image", "url": qrUrl, "size": "full", "aspectRatio": "1:1", "aspectMode": "fit" },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "backgroundColor": "#FFFFFF",
+                    "paddingAll": "12px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                { "type": "text", "text": typeLabel, "size": "sm", "color": "#666666", "flex": 0 },
+                                { "type": "text", "text": formattedId || "-", "size": "sm", "color": "#111827", "weight": "bold", "align": "end", "adjustMode": "shrink-to-fit" }
+                            ]
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#F9FAFB",
+                    "paddingAll": "12px",
+                    "contents": [
+                        { "type": "text", "text": "สแกนเพื่อชำระเงิน • ใช้ได้กับแอปธนาคารทุกธนาคาร", "size": "xxs", "color": "#9CA3AF", "align": "center", "wrap": true }
+                    ]
+                }
+            };
+
+            if (displayAmount) {
+                json.body.contents.push({ "type": "separator" });
+                json.body.contents.push({
+                    "type": "box",
+                    "layout": "horizontal",
+                    "alignItems": "center",
+                    "contents": [
+                        { "type": "text", "text": "จำนวนเงิน", "size": "sm", "color": "#666666", "flex": 0 },
+                        { "type": "text", "text": displayAmount, "size": "xl", "color": "#1A4F9C", "weight": "bold", "align": "end", "adjustMode": "shrink-to-fit" }
+                    ]
+                });
+            }
+
+            json.body.contents.push({ "type": "text", "text": `Ref ${dateString}`, "size": "xxs", "color": "#9CA3AF", "align": "center", "margin": "lg" });
+            return JSON.stringify(json, null, 2);
+        };
+
+        // --- STREAMING_CHUNK:Main UI Update Function ---
+        const render = () => {
+            // 1. Determine validity and URL
+            const qrUrl = getQrUrl();
+            const isValid = qrUrl !== null;
+
+            // 2. Update styling for Account Type selection
+            const types = ['phone', 'national_id', 'ewallet'];
+            types.forEach(t => {
+                const isActive = state.accountType === t;
+                // Label styles
+                els.labels[t].className = `flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${isActive ? 'border-[#1A4F9C] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`;
+                // Indicator styles
+                els.indicators[t].className = `aspect-square h-4 w-4 rounded-full border flex items-center justify-center ${isActive ? 'border-[#1A4F9C]' : 'border-gray-300'}`;
+                els.indicators[t].innerHTML = isActive ? '<div class="h-2 w-2 rounded-full bg-[#1A4F9C]"></div>' : '';
+                // Icon styling
+                els.icons[t].classList.toggle('text-[#1A4F9C]', isActive);
+                els.icons[t].classList.toggle('text-gray-400', !isActive);
+            });
+
+            // 3. Update Input constraints
+            let placeholder = '0812345678';
+            let maxLength = 10;
+            let labelText = 'Phone Number';
+            
+            if (state.accountType === 'national_id') {
+                placeholder = '1123456789012';
+                maxLength = 13;
+                labelText = 'National ID';
+            } else if (state.accountType === 'ewallet') {
+                placeholder = '012345678901234';
+                maxLength = 15;
+                labelText = 'E-Wallet ID';
+            }
+            
+            els.inputId.placeholder = placeholder;
+            els.inputId.maxLength = maxLength;
+            els.labelId.innerHTML = `${labelText}<span class="text-red-500 ml-1">*</span>`;
+
+            // 4. Update Tabs visibility
+            if (state.activeTab === 'qr') {
+                els.tabQr.className = "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 bg-white text-gray-900 shadow-sm";
+                els.tabFlex.className = "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 hover:bg-gray-200";
+                els.contentQr.classList.remove('hidden');
+                els.contentFlex.classList.add('hidden');
+            } else {
+                els.tabFlex.className = "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 bg-white text-gray-900 shadow-sm";
+                els.tabQr.className = "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all flex-1 hover:bg-gray-200";
+                els.contentFlex.classList.remove('hidden');
+                els.contentQr.classList.add('hidden');
+            }
+
+            // 5. Update Buttons State
+            [els.btnCopyHeader, els.btnDlHeader, els.btnCopyCard, els.btnDlCard].forEach(btn => {
+                if(btn) btn.disabled = !isValid;
+            });
+
+            // 6. Update Previews
+            if (isValid) {
+                // QR View
+                els.qrEmpty.classList.add('hidden');
+                els.qrActive.classList.remove('hidden');
+                els.qrImg.src = qrUrl;
+                els.qrDisplayLabel.innerText = labelText;
+                els.qrDisplayId.innerText = formatDisplayId(state.accountId, state.accountType);
+                
+                // Flex View
+                els.flexEmpty.classList.add('hidden');
+                els.flexActive.classList.remove('hidden');
+                els.flexQrImg.src = qrUrl;
+
+                // Flex Details
+                const typeLabelFlex = state.accountType === 'phone' ? 'เบอร์โทร' : state.accountType === 'national_id' ? 'รหัสบัตรประชาชน' : 'E-Wallet';
+                els.flexTypeLabel.innerText = typeLabelFlex;
+                els.flexDisplayId.innerText = formatDisplayId(state.accountId, state.accountType);
+
+                // Date generation for Flex Ref
+                const d = new Date();
+                const dateString = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                els.flexRef.innerText = `Ref ${dateString}`;
+
+                // Shared Amount Logic
+                if (state.amount && parseFloat(state.amount) > 0) {
+                    const formattedAmt = parseFloat(state.amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    els.qrAmountContainer.classList.remove('hidden');
+                    els.qrDisplayAmount.innerText = `฿${formattedAmt}`;
+                    
+                    els.flexAmountContainer.classList.replace('hidden', 'flex');
+                    els.flexAmount.innerText = `฿${formattedAmt}`;
+                } else {
+                    els.qrAmountContainer.classList.add('hidden');
+                    els.flexAmountContainer.classList.replace('flex', 'hidden');
+                }
+
+                // Flex Name Logic
+                if (state.accountName.trim()) {
+                    els.flexNameContainer.classList.remove('hidden');
+                    els.flexName.innerText = state.accountName;
+                } else {
+                    els.flexNameContainer.classList.add('hidden');
+                }
+
+                // JSON
+                els.jsonOutput.innerText = generateFlexJson(qrUrl);
+            } else {
+                els.qrActive.classList.add('hidden');
+                els.qrEmpty.classList.remove('hidden');
+                els.flexActive.classList.add('hidden');
+                els.flexEmpty.classList.remove('hidden');
+                els.jsonOutput.innerText = "{}\n// Enter valid ID to generate JSON";
+            }
+        };
+
+        // --- STREAMING_CHUNK:Event Listeners ---
+        // Input Handling
+        els.radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                state.accountType = e.target.value;
+                state.accountId = ''; // Reset ID on type change
+                els.inputId.value = '';
+                render();
+            });
+        });
+
+        els.inputId.addEventListener('input', (e) => {
+            state.accountId = e.target.value.replace(/\D/g, ''); // Keep only digits
+            e.target.value = state.accountId; // Update visual input
+            render();
+        });
+
+        els.inputName.addEventListener('input', (e) => {
+            state.accountName = e.target.value;
+            render();
+        });
+
+        els.inputAmount.addEventListener('input', (e) => {
+            state.amount = e.target.value;
+            render();
+        });
+
+        // Tabs
+        els.tabQr.addEventListener('click', () => { state.activeTab = 'qr'; render(); });
+        els.tabFlex.addEventListener('click', () => { state.activeTab = 'flex'; render(); });
+
+        // Action Handlers
+        const handleCopyLink = async () => {
+            const qrUrl = getQrUrl();
+            if (!qrUrl) return;
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(qrUrl);
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = qrUrl;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                }
+                
+                // Show copied feedback
+                const setFeedback = (iconEl, textEl, isCopied) => {
+                    iconEl.outerHTML = isCopied ? iconCheck : iconCopy;
+                    // Re-grab the new element since outerHTML replaces it
+                    if (iconEl.id === 'icon-copy-header') els.iconCopyHeader = document.getElementById('icon-copy-header');
+                    if (iconEl.id === 'icon-copy-card') els.iconCopyCard = document.getElementById('icon-copy-card');
+                    textEl.innerText = isCopied ? 'Copied!' : 'Copy Link';
+                };
+
+                setFeedback(els.iconCopyHeader, els.textCopyHeader, true);
+                setFeedback(els.iconCopyCard, els.textCopyCard, true);
+
+                setTimeout(() => {
+                    setFeedback(els.iconCopyHeader, els.textCopyHeader, false);
+                    setFeedback(els.iconCopyCard, els.textCopyCard, false);
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+        };
+
+        const handleDownload = async () => {
+            const qrUrl = getQrUrl();
+            if (!qrUrl) return;
+            try {
+                const response = await fetch(qrUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = `promptpay-${state.accountId}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                console.error('Failed to download image', err);
+            }
+        };
+
+        const handleCopyJson = async () => {
+            const jsonString = generateFlexJson(getQrUrl());
+            if (jsonString === "{}") return;
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(jsonString);
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = jsonString;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                }
+                
+                els.iconCopyJson.outerHTML = iconCheckJson;
+                els.iconCopyJson = document.querySelector('#btn-copy-json svg');
+                
+                setTimeout(() => {
+                    els.iconCopyJson.outerHTML = iconCopyJson;
+                    els.iconCopyJson = document.querySelector('#btn-copy-json svg');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy JSON', err);
+            }
+        };
+
+        // Attach buttons
+        els.btnCopyHeader.addEventListener('click', handleCopyLink);
+        els.btnCopyCard.addEventListener('click', handleCopyLink);
+        els.btnDlHeader.addEventListener('click', handleDownload);
+        els.btnDlCard.addEventListener('click', handleDownload);
+        els.btnCopyJson.addEventListener('click', handleCopyJson);
+
+        // Initial render
+        render();
+
+    </script>
+</body>
+</html>

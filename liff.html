@@ -165,7 +165,7 @@
 
                                 <!-- Active State -->
                                 <div id="qr-active" class="hidden w-full max-w-[320px]">
-                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                                    <div id="promptpay-card" class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                                         <div class="flex items-center justify-between px-4 py-3 bg-[#1A4F9C]">
                                             <span class="text-white font-bold text-lg leading-none">PromptPay</span>
                                             <span class="text-white/90 text-xs">พร้อมเพย์</span>
@@ -668,7 +668,7 @@
         };
 
         const handleDownload = async () => {
-            const cardEl = document.querySelector('#qr-active .bg-white.rounded-xl');
+            const cardEl = document.getElementById('promptpay-card');
             const qrUrl = getQrUrl();
             if (!qrUrl || !cardEl) return;
 
@@ -683,16 +683,25 @@
 
             try {
                 // 2. Fetch image via CORS proxy to bypass tainted canvas security issues
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(qrUrl)}`;
-                const response = await fetch(proxyUrl);
+                // Using corsproxy.io as the primary proxy, with allorigins as a robust fallback
+                let proxyUrl = `https://corsproxy.io/?${encodeURIComponent(qrUrl)}`;
+                let response = await fetch(proxyUrl).catch(() => null);
+                
+                if (!response || !response.ok) {
+                    proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(qrUrl)}`;
+                    response = await fetch(proxyUrl);
+                }
+
+                if (!response.ok) throw new Error('Failed to fetch image via proxy');
+
                 const blob = await response.blob();
                 const localUrl = URL.createObjectURL(blob);
 
                 // 3. Temporarily swap the image source so html2canvas can read it securely
                 const originalSrc = els.qrImg.src;
-                await new Promise((resolve) => {
-                    els.qrImg.onload = () => { els.qrImg.onload = null; resolve(); };
-                    els.qrImg.onerror = () => { els.qrImg.onerror = null; resolve(); };
+                await new Promise((resolve, reject) => {
+                    els.qrImg.onload = resolve;
+                    els.qrImg.onerror = reject;
                     els.qrImg.src = localUrl;
                 });
 
@@ -700,7 +709,7 @@
                 const canvas = await html2canvas(cardEl, {
                     scale: 3, // High resolution for the downloaded PNG
                     useCORS: true,
-                    backgroundColor: null // Keep rounded corners transparent
+                    backgroundColor: '#ffffff' // Ensure background is solid white
                 });
 
                 // 5. Convert to Data URL and trigger Download

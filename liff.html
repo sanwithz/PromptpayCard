@@ -6,6 +6,8 @@
     <title>PromptPay QR Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- LIFF SDK --> 
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -245,7 +247,6 @@
                                                 <div class="absolute inset-0">
                                                     <img id="flex-qr-img" src="" alt="QR Code" class="w-full h-full object-contain" />
                                                 </div>
-                                                <!-- Optional centered logo overlay if desired, removed to perfectly match HTML snippet provided, but can be added back if needed -->
                                             </div>
 
                                             <!-- t1Body -->
@@ -290,6 +291,14 @@
                                     </div>
 
                                 </div>
+                                
+                                <!-- Share to LINE Button Container -->
+                                <div class="p-6 bg-white border-t border-gray-200">
+                                    <button id="btn-share-line" disabled class="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-bold transition-colors text-white h-12 px-4 py-2 bg-[#06C755] hover:bg-[#05b34c] disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                        <span id="text-share-line">Share to LINE Chat</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -321,14 +330,30 @@
             accountId: '',
             accountName: '',
             amount: '',
-            activeTab: 'qr' // 'qr', 'flex'
+            activeTab: 'qr', // 'qr', 'flex'
+            liffReady: false
         };
+
+        // --- LIFF Initialization ---
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: "2007125937-z5nYqNdx" });
+                state.liffReady = true;
+                console.log("LIFF initialized successfully");
+                render(); // Re-render to enable share button if data is valid
+            } catch (err) {
+                console.error("LIFF initialization failed", err);
+            }
+        }
+        
+        initializeLiff();
 
         // --- SVG Icons Data ---
         const iconCopy = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg>';
         const iconCheck = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg>';
         const iconCopyJson = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>';
         const iconCheckJson = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        const iconShare = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>';
 
         // --- DOM Elements ---
         const els = {
@@ -368,11 +393,14 @@
             btnCopyCard: document.getElementById('btn-copy-card'),
             btnDlCard: document.getElementById('btn-dl-card'),
             btnCopyJson: document.getElementById('btn-copy-json'),
+            btnShareLine: document.getElementById('btn-share-line'),
+            
             textCopyHeader: document.getElementById('text-copy-header'),
             iconCopyHeader: document.getElementById('icon-copy-header'),
             textCopyCard: document.getElementById('text-copy-card'),
             iconCopyCard: document.getElementById('icon-copy-card'),
             iconCopyJson: document.getElementById('icon-copy-json'),
+            textShareLine: document.getElementById('text-share-line'),
 
             // Previews
             qrEmpty: document.getElementById('qr-empty'),
@@ -451,16 +479,7 @@
                     "spacing": "md",
                     "backgroundColor": "#FFFFFF",
                     "paddingAll": "12px",
-                    "contents": [
-                        {
-                            "type": "box",
-                            "layout": "horizontal",
-                            "contents": [
-                                { "type": "text", "text": typeLabel, "size": "sm", "color": "#666666", "flex": 0 },
-                                { "type": "text", "text": formattedId || "-", "size": "sm", "color": "#111827", "weight": "bold", "align": "end", "adjustMode": "shrink-to-fit" }
-                            ]
-                        }
-                    ]
+                    "contents": []
                 },
                 "footer": {
                     "type": "box",
@@ -472,13 +491,30 @@
                     ]
                 }
             };
+            
+            if (state.accountName.trim()) {
+                 json.body.contents.push({
+                     "type": "text", "text": state.accountName.trim(), "weight": "bold", "size": "md", "align": "center", "wrap": true, "margin": "none", "color": "#1f2937"
+                 });
+            }
+
+            json.body.contents.push({
+                "type": "box",
+                "layout": "horizontal",
+                "margin": "md",
+                "contents": [
+                    { "type": "text", "text": typeLabel, "size": "sm", "color": "#666666", "flex": 0 },
+                    { "type": "text", "text": formattedId || "-", "size": "sm", "color": "#111827", "weight": "bold", "align": "end", "adjustMode": "shrink-to-fit" }
+                ]
+            });
 
             if (displayAmount) {
-                json.body.contents.push({ "type": "separator" });
+                json.body.contents.push({ "type": "separator", "margin": "md" });
                 json.body.contents.push({
                     "type": "box",
                     "layout": "horizontal",
                     "alignItems": "center",
+                    "margin": "md",
                     "contents": [
                         { "type": "text", "text": "จำนวนเงิน", "size": "sm", "color": "#666666", "flex": 0 },
                         { "type": "text", "text": displayAmount, "size": "xl", "color": "#1A4F9C", "weight": "bold", "align": "end", "adjustMode": "shrink-to-fit" }
@@ -487,6 +523,7 @@
             }
 
             json.body.contents.push({ "type": "text", "text": `Ref ${dateString}`, "size": "xxs", "color": "#9CA3AF", "align": "center", "margin": "lg" });
+            
             return JSON.stringify(json, null, 2);
         };
 
@@ -549,6 +586,9 @@
             [els.btnCopyHeader, els.btnDlHeader, els.btnCopyCard, els.btnDlCard].forEach(btn => {
                 if(btn) btn.disabled = !isValid;
             });
+            
+            // Enable LINE share only if ID valid AND liff is ready
+            els.btnShareLine.disabled = !isValid || !state.liffReady;
 
             // 6. Update Previews
             if (isValid) {
@@ -772,6 +812,40 @@
                 console.error('Failed to copy JSON', err);
             }
         };
+        
+        const handleShareLine = async () => {
+            if (!state.liffReady) return;
+            
+            // Check Login Status - Required for ShareTargetPicker outside of LINE App
+            if (!liff.isLoggedIn()) {
+                // Determine current URL for redirect logic
+                let currentUrl = window.location.href;
+                liff.login({ redirectUri: currentUrl });
+                return; 
+            }
+
+            const qrUrl = getQrUrl();
+            if (!qrUrl) return;
+
+            const flexJsonString = generateFlexJson(qrUrl);
+            const flexMessagePayload = JSON.parse(flexJsonString);
+
+            if (liff.isApiAvailable('shareTargetPicker')) {
+                try {
+                    const res = await liff.shareTargetPicker([flexMessagePayload]);
+                    if (res) {
+                        // Success Feedback
+                        els.textShareLine.innerText = 'Shared Successfully!';
+                        setTimeout(() => { els.textShareLine.innerText = 'Share to LINE Chat'; }, 3000);
+                    }
+                } catch (error) {
+                    console.error("Error sharing message", error);
+                    alert("Failed to share Flex Message. Please try again.");
+                }
+            } else {
+                alert("ShareTargetPicker is not supported in this environment/browser.");
+            }
+        };
 
         // Attach buttons
         els.btnCopyHeader.addEventListener('click', handleCopyLink);
@@ -779,6 +853,7 @@
         els.btnDlHeader.addEventListener('click', handleDownload);
         els.btnDlCard.addEventListener('click', handleDownload);
         els.btnCopyJson.addEventListener('click', handleCopyJson);
+        els.btnShareLine.addEventListener('click', handleShareLine);
 
         // Initial render
         render();

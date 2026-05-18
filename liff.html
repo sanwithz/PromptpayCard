@@ -174,16 +174,16 @@
                                             <img id="qr-img" src="" alt="PromptPay QR Code" class="w-full aspect-square object-contain" />
                                         </div>
                                         <div class="px-4 pb-3 space-y-3">
-                                            <div class="flex items-baseline justify-between gap-3">
-                                                <span id="qr-display-label" class="text-sm text-gray-600 shrink-0">Phone Number</span>
-                                                <span id="qr-display-id" class="text-sm font-bold text-gray-900 font-mono text-right truncate">-</span>
+                                            <div class="flex items-center justify-between gap-3">
+                                                <span id="qr-display-label" class="text-sm text-gray-600 shrink-0 leading-normal pt-1">Phone Number</span>
+                                                <span id="qr-display-id" class="text-sm font-bold text-gray-900 font-mono text-right break-all leading-normal pt-1">-</span>
                                             </div>
                                             
                                             <div id="qr-amount-container" class="hidden">
                                                 <div class="border-t border-gray-200 my-3"></div>
                                                 <div class="flex items-center justify-between gap-3">
-                                                    <span class="text-sm text-gray-600 shrink-0">Amount</span>
-                                                    <span id="qr-display-amount" class="text-xl font-bold text-[#1A4F9C]">฿0.00</span>
+                                                    <span class="text-sm text-gray-600 shrink-0 leading-normal pb-1">Amount</span>
+                                                    <span id="qr-display-amount" class="text-xl font-bold text-[#1A4F9C] leading-normal pb-1">฿0.00</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -485,7 +485,7 @@
             return JSON.stringify(json, null, 2);
         };
 
-        // --- STREAMING_CHUNK:Main UI Update Function ---
+        // --- Main UI Update Function ---
         const render = () => {
             // 1. Determine validity and URL
             const qrUrl = getQrUrl();
@@ -598,7 +598,7 @@
             }
         };
 
-        // --- STREAMING_CHUNK:Event Listeners ---
+        // --- Event Listeners ---
         // Input Handling
         els.radios.forEach(radio => {
             radio.addEventListener('change', (e) => {

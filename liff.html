@@ -828,7 +828,14 @@
             if (!qrUrl) return;
 
             const flexJsonString = generateFlexJson(qrUrl);
-            const flexMessagePayload = JSON.parse(flexJsonString);
+            const flexBubble = JSON.parse(flexJsonString);
+
+            // Create a valid LINE Message Object by wrapping the Flex Bubble
+            const flexMessagePayload = {
+                type: "flex",
+                altText: `PromptPay QR Code (${formatDisplayId(state.accountId, state.accountType)})`,
+                contents: flexBubble
+            };
 
             if (liff.isApiAvailable('shareTargetPicker')) {
                 try {

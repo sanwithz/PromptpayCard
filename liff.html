@@ -338,6 +338,14 @@
         async function initializeLiff() {
             try {
                 await liff.init({ liffId: "2007125937-z5nYqNdx" });
+                
+                // Force login on page load
+                if (!liff.isLoggedIn()) {
+                    // Redirects the user to LINE login automatically based on Endpoint URL
+                    liff.login({ redirectUri: window.location.href });
+                    return; // Prevent further execution until redirected back
+                }
+
                 state.liffReady = true;
                 console.log("LIFF initialized successfully");
                 render(); // Re-render to enable share button if data is valid
@@ -814,15 +822,7 @@
         };
         
         const handleShareLine = async () => {
-            if (!state.liffReady) return;
-            
-            // Check Login Status - Required for ShareTargetPicker outside of LINE App
-            if (!liff.isLoggedIn()) {
-                // Determine current URL for redirect logic
-                let currentUrl = window.location.href;
-                liff.login({ redirectUri: currentUrl });
-                return; 
-            }
+            if (!state.liffReady || !liff.isLoggedIn()) return;
 
             const qrUrl = getQrUrl();
             if (!qrUrl) return;

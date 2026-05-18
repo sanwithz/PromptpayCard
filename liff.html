@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PromptPay QR Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -667,21 +668,63 @@
         };
 
         const handleDownload = async () => {
+            const cardEl = document.querySelector('#qr-active .bg-white.rounded-xl');
             const qrUrl = getQrUrl();
-            if (!qrUrl) return;
+            if (!qrUrl || !cardEl) return;
+
+            const originalTextHeader = els.btnDlHeader.innerHTML;
+            const originalTextCard = els.btnDlCard.innerHTML;
+
+            // 1. Set loading state
+            els.btnDlHeader.disabled = true;
+            els.btnDlCard.disabled = true;
+            els.btnDlHeader.innerText = 'Generating...';
+            els.btnDlCard.innerText = 'Generating...';
+
             try {
-                const response = await fetch(qrUrl);
+                // 2. Fetch image via CORS proxy to bypass tainted canvas security issues
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(qrUrl)}`;
+                const response = await fetch(proxyUrl);
                 const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
+                const localUrl = URL.createObjectURL(blob);
+
+                // 3. Temporarily swap the image source so html2canvas can read it securely
+                const originalSrc = els.qrImg.src;
+                await new Promise((resolve) => {
+                    els.qrImg.onload = () => { els.qrImg.onload = null; resolve(); };
+                    els.qrImg.onerror = () => { els.qrImg.onerror = null; resolve(); };
+                    els.qrImg.src = localUrl;
+                });
+
+                // 4. Generate Canvas from the entire Card element
+                const canvas = await html2canvas(cardEl, {
+                    scale: 3, // High resolution for the downloaded PNG
+                    useCORS: true,
+                    backgroundColor: null // Keep rounded corners transparent
+                });
+
+                // 5. Convert to Data URL and trigger Download
+                const image = canvas.toDataURL("image/png");
                 const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = `promptpay-${state.accountId}.png`;
+                link.download = `PromptPay-${state.accountId}.png`;
+                link.href = image;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                window.URL.revokeObjectURL(blobUrl);
+
+                // 6. Cleanup Memory
+                els.qrImg.src = originalSrc;
+                URL.revokeObjectURL(localUrl);
+
             } catch (err) {
                 console.error('Failed to download image', err);
+                alert('Failed to generate image. Please check your network connection.');
+            } finally {
+                // 7. Restore button UI
+                els.btnDlHeader.innerHTML = originalTextHeader;
+                els.btnDlCard.innerHTML = originalTextCard;
+                els.btnDlHeader.disabled = false;
+                els.btnDlCard.disabled = false;
             }
         };
 

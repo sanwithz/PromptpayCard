@@ -175,20 +175,24 @@
                                         </div>
                                         <div class="px-4 pb-3 space-y-3">
                                             <div class="flex items-center justify-between gap-3">
-                                                <span id="qr-display-label" class="text-sm text-gray-600 shrink-0 leading-normal pt-1">Phone Number</span>
+                                                <span id="qr-display-label" class="text-sm text-gray-600 shrink-0 leading-normal pt-1">เบอร์โทร</span>
                                                 <span id="qr-display-id" class="text-sm font-bold text-gray-900 font-mono text-right break-all leading-normal pt-1">-</span>
                                             </div>
                                             
                                             <div id="qr-amount-container" class="hidden">
                                                 <div class="border-t border-gray-200 my-3"></div>
                                                 <div class="flex items-center justify-between gap-3">
-                                                    <span class="text-sm text-gray-600 shrink-0 leading-normal pb-1">Amount</span>
+                                                    <span class="text-sm text-gray-600 shrink-0 leading-normal pb-1">จำนวนเงิน</span>
                                                     <span id="qr-display-amount" class="text-xl font-bold text-[#1A4F9C] leading-normal pb-1">฿0.00</span>
                                                 </div>
                                             </div>
+                                            
+                                            <div class="text-[10px] text-[#9CA3AF] text-center pt-2">
+                                                <span id="qr-ref">Ref -</span>
+                                            </div>
                                         </div>
                                         <div class="bg-gray-50 px-4 py-2.5 border-t border-gray-100">
-                                            <p class="text-[10px] text-gray-400 text-center">Scan to pay • Works with all Thai banking apps</p>
+                                            <p class="text-[10px] text-gray-400 text-center">สแกนเพื่อชำระเงิน • ใช้ได้กับแอปธนาคารทุกธนาคาร</p>
                                         </div>
                                     </div>
 
@@ -378,6 +382,7 @@
             qrDisplayId: document.getElementById('qr-display-id'),
             qrAmountContainer: document.getElementById('qr-amount-container'),
             qrDisplayAmount: document.getElementById('qr-display-amount'),
+            qrRef: document.getElementById('qr-ref'),
 
             // Flex Previews
             flexEmpty: document.getElementById('flex-empty'),
@@ -508,21 +513,24 @@
             // 3. Update Input constraints
             let placeholder = '0812345678';
             let maxLength = 10;
-            let labelText = 'Phone Number';
+            let inputLabelText = 'Phone Number';
+            let previewLabelText = 'เบอร์โทร';
             
             if (state.accountType === 'national_id') {
                 placeholder = '1123456789012';
                 maxLength = 13;
-                labelText = 'National ID';
+                inputLabelText = 'National ID';
+                previewLabelText = 'รหัสบัตรประชาชน';
             } else if (state.accountType === 'ewallet') {
                 placeholder = '012345678901234';
                 maxLength = 15;
-                labelText = 'E-Wallet ID';
+                inputLabelText = 'E-Wallet ID';
+                previewLabelText = 'E-Wallet';
             }
             
             els.inputId.placeholder = placeholder;
             els.inputId.maxLength = maxLength;
-            els.labelId.innerHTML = `${labelText}<span class="text-red-500 ml-1">*</span>`;
+            els.labelId.innerHTML = `${inputLabelText}<span class="text-red-500 ml-1">*</span>`;
 
             // 4. Update Tabs visibility
             if (state.activeTab === 'qr') {
@@ -548,7 +556,7 @@
                 els.qrEmpty.classList.add('hidden');
                 els.qrActive.classList.remove('hidden');
                 els.qrImg.src = qrUrl;
-                els.qrDisplayLabel.innerText = labelText;
+                els.qrDisplayLabel.innerText = previewLabelText;
                 els.qrDisplayId.innerText = formatDisplayId(state.accountId, state.accountType);
                 
                 // Flex View
@@ -557,14 +565,14 @@
                 els.flexQrImg.src = qrUrl;
 
                 // Flex Details
-                const typeLabelFlex = state.accountType === 'phone' ? 'เบอร์โทร' : state.accountType === 'national_id' ? 'รหัสบัตรประชาชน' : 'E-Wallet';
-                els.flexTypeLabel.innerText = typeLabelFlex;
+                els.flexTypeLabel.innerText = previewLabelText;
                 els.flexDisplayId.innerText = formatDisplayId(state.accountId, state.accountType);
 
                 // Date generation for Flex Ref
                 const d = new Date();
                 const dateString = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
                 els.flexRef.innerText = `Ref ${dateString}`;
+                els.qrRef.innerText = `Ref ${dateString}`;
 
                 // Shared Amount Logic
                 if (state.amount && parseFloat(state.amount) > 0) {
